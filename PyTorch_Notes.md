@@ -1,12 +1,16 @@
 # PyTorch笔记
+
 ## [B, C, H, W]
+
 * flatten
+
 ```python
-# 两种方式
 x = torch.flatten(x, start_dim=1)  # dim_0 : batch_size
 x = nn.Flatten()(x)  # default first dim to flatten = 1
 ```
+
 * totensor
+
 ```python
 # torchvision.transforms.ToTensor()
 
@@ -31,7 +35,9 @@ class ToTensor(object):
         return self.__class__.__name__ + '()'
 
 ```
+
 * showimg
+
 ```python
 import matplotlib.pyplot as plt
 import numpy as np
@@ -55,36 +61,48 @@ imshow(torchvision.utils.make_grid(images))
 # print labels
 print(' '.join('%5s' % classes[labels[j]] for j in range(batch_size)))
 ```
+
 * torch2array
+
 ```python
 x_torch = torch.from_numpy(x_array)
 ```
+
 * array2torch
+
 ```python
 x_array = x_torch.numpy()
 ```
+
 ## train
-* get device 
+
+* get device
+
 ```python
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 x = x.to(device)
 model = model.to(device)
 ```
+
 * model.train() v.s. model.eval()
+
 ```python
 def train(dataloader, model, loss_fn, optimizer):
-	model.train()
-	...
+ model.train()
+ ...
 
 def test(dataloader, model, loss_fn):
-	model.eval()
-	...
-	with torch.no_grad():
-		...
+ model.eval()
+ ...
+ with torch.no_grad():
+  ...
 ```
+
 model.train() 与 model.eval() 的区别在于 dropout/batch normalization, 利用上下文管理器with可以**暂时**关掉grad的属性，加速减少显存
+
 * crossentropy
+
 ```python
 loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.001)
@@ -102,29 +120,37 @@ for batch, (X, y) in enumerate(dataloader):
     loss.backward()
     optimizer.step()
 ```
+
 **问题**：pred (#batch, #C)， y (#batch)，如何求 **loss** ？
+
 **公式**：$
 \small{l = -\sum_{k=1}^C y^{one\_ hot}_k\cdot \log(pred_k)
 = - \log(pred_y)
 }$
-**注意**： 如果分类任务使用nn.CrossEntropyLoss()，最后一层全连接之后可以不用添加Softmax，已经包含在loss的计算中。
->Note that this case is equivalent to the combination of  [LogSoftmax](https://pytorch.org/docs/stable/generated/torch.nn.LogSoftmax.html#torch.nn.LogSoftmax)  and  [NLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html#torch.nn.NLLLoss) . 
 
+**注意**： 如果分类任务使用nn.CrossEntropyLoss()，最后一层全连接之后可以不用添加Softmax，已经包含在loss的计算中
+>Note that this case is equivalent to the combination of  [LogSoftmax](https://pytorch.org/docs/stable/generated/torch.nn.LogSoftmax.html#torch.nn.LogSoftmax)  and  [NLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html#torch.nn.NLLLoss)
 
 ## model
+
 * print model
+
 ```python
 print(net)
 ```
+
 实验发现，net 架构只与 __init__ 中定义的self.layer有关，即使一个层在forward中使用多次，也只会打印一次
+
 * print parameters
+
 ```python
 # named_parameters
 for name, param in net.named_parameters():
-	print("name: {:<15}, shape: {}".format(name, param.shape))
+ print("name: {:<15}, shape: {}".format(name, param.shape))
 
 # parameters
 for param in net.parameters():
-	print("shape: {}".format(param.shape))
+ print("shape: {}".format(param.shape))
 ```
+
 查看源码发现，net.parameters() 就是调用的 net.named_parameters()，所以以后还是用后者吧
