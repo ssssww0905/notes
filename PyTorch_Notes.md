@@ -5,7 +5,6 @@
 * flatten
 
 ```python
-# 两种方式
 x = torch.flatten(x, start_dim=1)  # dim_0 : batch_size
 x = nn.Flatten()(x)  # default first dim to flatten = 1
 ```
@@ -123,12 +122,14 @@ for batch, (X, y) in enumerate(dataloader):
 ```
 
 **问题**：pred (#batch, #C)， y (#batch)，如何求 **loss** ？
+
 **公式**：$
 \small{l = -\sum_{k=1}^C y^{one\_ hot}_k\cdot \log(pred_k)
 = - \log(pred_y)
 }$
-**注意**： 如果分类任务使用nn.CrossEntropyLoss()，最后一层全连接之后可以不用添加Softmax，已经包含在loss的计算中。
->Note that this case is equivalent to the combination of  [LogSoftmax](https://pytorch.org/docs/stable/generated/torch.nn.LogSoftmax.html#torch.nn.LogSoftmax)  and  [NLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html#torch.nn.NLLLoss) .
+
+**注意**： 如果分类任务使用nn.CrossEntropyLoss()，最后一层全连接之后可以不用添加Softmax，已经包含在loss的计算中
+>Note that this case is equivalent to the combination of  [LogSoftmax](https://pytorch.org/docs/stable/generated/torch.nn.LogSoftmax.html#torch.nn.LogSoftmax)  and  [NLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html#torch.nn.NLLLoss)
 
 ## model
 
@@ -219,8 +220,6 @@ if __name__ == '__main__':
     main()
     print("data prepare done!")
 ```
-
-
 
 * 导入数据集
 
