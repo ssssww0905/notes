@@ -262,6 +262,31 @@ def data_loader_prepare(batch_size):
 
 ## tqdm
 
-* 坑1:tqdm是一个模块
+[tqdm](https://tqdm.github.io/)是一个进度管理器，但是使用过程中，踩过一些坑
+
+* >TypeError: 'module' object is not callable
+
+    ```python
+    from tqdm import tqdm  # not import tqdm
+    ```
+
+* 无法在一行内显示进度条，PyCharm内多行滚动……
+
+```python
+    desc = "[EPOCH {:>3d} / {:>3d}] TRAIN".format(epoch+1, EPOCH)
+    with tqdm(data_loader, desc=desc, ncols=80, file=sys.stdout) as train_bar:
+        for (x, y) in train_bar:
+            x, y = x.to(device), y.to(device)
+            pred = model(x)
+            loss = loss_fn(pred, y)
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            train_loss += loss.item()
+
+    print("[EPOCH {:>3d} / {:>3d}] TRAIN LOSS : {:.6f} ".format(epoch + 1, EPOCH, train_loss))
+```
 
 ## tensorboard
