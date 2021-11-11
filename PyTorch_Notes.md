@@ -290,3 +290,17 @@ def data_loader_prepare(batch_size):
 ```
 
 ## tensorboard
+
+了解标准库 **logging** 后对tensorboard有了更清晰的认识
+
+```python
+from torch.utils.tensorboard import SummaryWriter
+
+writer = SummaryWriter('log')
+writer.add_scalar('Train Loss', train_loss, epoch + 1)
+writer.close()
+```
+
+```powershell
+tensorboard --logdir=log
+```
