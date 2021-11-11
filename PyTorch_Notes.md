@@ -301,6 +301,6 @@ writer.add_scalar('Train Loss', train_loss, epoch + 1)
 writer.close()
 ```
 
-```powershell
+```shell
 tensorboard --logdir=log
 ```
