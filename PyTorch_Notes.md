@@ -131,6 +131,23 @@ for batch, (X, y) in enumerate(dataloader):
 **注意**： 如果分类任务使用nn.CrossEntropyLoss()，最后一层全连接之后可以不用添加Softmax，已经包含在loss的计算中
 >Note that this case is equivalent to the combination of  [LogSoftmax](https://pytorch.org/docs/stable/generated/torch.nn.LogSoftmax.html#torch.nn.LogSoftmax)  and  [NLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html#torch.nn.NLLLoss)
 
+* BatchNormalization
+[Batch Normalization原理与实战](https://zhuanlan.zhihu.com/p/34879333)
+[什么是批标准化 (Batch Normalization)](https://zhuanlan.zhihu.com/p/24810318)
+[Batch Normalization详解](https://www.cnblogs.com/shine-lee/p/11989612.html)
+
+1. BN层自带学习属性($\gamma$以及$\beta$)，而且会保留均值及方差（考虑 **model.eval()** 时，输入的batch_szie可能为1，所有BN层的参数都是固定的，在训练过程中迭代更新），所以网络中的每个BN层都需要单独定义；这不同于ReLU，可以复用
+
+2. BN层的操作是以 **feature** 为单位的：卷积就是 feature map 的个数，即有 **c_out** 对 $\mu,\sigma,\gamma,\beta$；全连接层就是神经元的个数
+
+3. BN提出是为了解决激活函数分布趋于饱和端的情况，所以推荐使用在激活函数之前；又由于BN包含了 **shift** 和 **scaling** 的作用，所以可以将BN之前层的bias设为False
+
+* LayerNormalization
+[详解深度学习中的Normalization，BN/LN/WN](https://zhuanlan.zhihu.com/p/33173246)
+[深度学习中的Normalization模型](https://www.jiqizhixin.com/articles/2018-08-29-7)
+
+Normalization都在一个框架下，都包含有训练学习的思想
+
 ## model
 
 * print model
