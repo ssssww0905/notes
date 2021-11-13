@@ -319,5 +319,5 @@ writer.close()
 ```
 
 ```shell
-tensorboard --logdir=log
+tensorboard --logdir=log  # conda activate pytorch
 ```

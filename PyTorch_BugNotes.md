@@ -84,7 +84,7 @@ self._features = nn.Sequential(*features_seq)  # 解包
 ## ResNet stride
 
 * **问题描述**
-BasicBlock Bottleneck **可能** 涉及 HW 的减半（conv2_x是通过maxpool完成的），所以在初始化时需要传入 **stride** 参数，且应该考虑具体在哪一个卷积层将高和宽变为原来的一半
+`BasicBlock` `Bottleneck` **可能** 涉及 HW 的减半（conv2_x是通过maxpool完成的），所以在初始化时需要传入 **stride** 参数，且应该考虑具体在哪一个卷积层将高和宽变为原来的一半
 
 * **代码参考**
 
@@ -170,6 +170,7 @@ class Bottleneck(nn.Module):
 ## ResNet _make_layer
 
 * **问题描述**
+
 **identity** 不能直接与 **out** 相加有两种可能：channel 不同或 HW 不同
 channel 直接调整 **in_channels**  和 **out_channels**；HW 通过 **stride** 为 (1, 1) 或 (2, 2) 控制
 
@@ -201,4 +202,117 @@ channel 直接调整 **in_channels**  和 **out_channels**；HW 通过 **stride*
 
         return nn.Sequential(*layers)
 
+```
+
+## transforms.resize
+
+* **问题描述**
+
+`resize` 的参数
+
+* **代码参考**
+
+```python
+class Resize(torch.nn.Module):
+    """Resize the input image to the given size.
+    If the image is torch Tensor, it is expected
+    to have [..., H, W] shape, where ... means an arbitrary number of leading dimensions
+
+    Args:
+        size (sequence or int): Desired output size. If size is a sequence like
+            (h, w), output size will be matched to this. If size is an int,
+            smaller edge of the image will be matched to this number.
+            i.e, if height > width, then image will be rescaled to
+            (size * height / width, size).
+    """
+```
+
+## load_state_dict
+
+* **问题描述**
+
+1. `load_state_dict` 网络中各层名字必须一致！【默认`strict=True`】
+
+```python
+model.load_state_dict(torch.load("{}_pretrained.pth".format(model.name), map_location=device), strict=True)
+```
+
+```powershell
+RuntimeError: Error(s) in loading state_dict for ResNet:
+	Missing key(s) in state_dict: "conv2.0.conv1.weight", "conv2.0.bn1.weight", "conv2.0.bn1.bias", "conv2.0.bn1.running_mean", "conv2.0.bn1.running_var", "conv2.0.conv2.weight", "conv2.0.bn2.weight", "conv2.0.bn2.bias", "conv2.0.bn2.running_mean", "conv2.0.bn2.running_var", "conv2.1.conv1.weight", "conv2.1.bn1.weight", "conv2.1.bn1.bias", "conv2.1.bn1.running_mean", "conv2.1.bn1.running_var", "conv2.1.conv2.weight", "conv2.1.bn2.weight", "conv2.1.bn2.bias", "conv2.1.bn2.running_mean", "conv2.1.bn2.running_var", "conv2.2.conv1.weight", "conv2.2.bn1.weight", "conv2.2.bn1.bias", "conv2.2.bn1.running_mean", "conv2.2.bn1.running_var", "conv2.2.conv2.weight", "conv2.2.bn2.weight", "conv2.2.bn2.bias", "conv2.2.bn2.running_mean", "conv2.2.bn2.running_var", "conv3.0.conv1.weight", "conv3.0.bn1.weight", "conv3.0.bn1.bias", "conv3.0.bn1.running_mean", "conv3.0.bn1.running_var", "conv3.0.conv2.weight", "conv3.0.bn2.weight", "conv3.0.bn2.bias", "conv3.0.bn2.running_mean", "conv3.0.bn2.running_var", "conv3.0.downsample.0.weight", "conv3.0.downsample.1.weight", "conv3.0.downsample.1.bias", "conv3.0.downsample.1.running_mean", "conv3.0.downsample.1.running_var", "conv3.1.conv1.weight", "conv3.1.bn1.weight", "conv3.1.bn1.bias", "conv3.1.bn1.running_mean", "conv3.1.bn1.running_var", "conv3.1.conv2.weight", "conv3.1.bn2.weight", "conv3.1.bn2.bias", "conv3.1.bn2.running_mean", "conv3.1.bn2.running_var", "conv3.2.conv1.weight", "conv3.2.bn1.weight", "conv3.2.bn1.bias", "conv3.2.bn1.running_mean", "conv3.2.bn1.running_var", "conv3.2.conv2.weight", "conv3.2.bn2.weight", "conv3.2.bn2.bias", "conv3.2.bn2.running_mean", "conv3.2.bn2.running_var", "conv3.3.conv1.weight", "conv3.3.bn1.weight", "conv3.3.bn1.bias", "conv3.3.bn1.running_mean", "conv3.3.bn1.running_var", "conv3.3.conv2.weight", "conv3.3.bn2.weight", "conv3.3.bn2.bias", "conv3.3.bn2.running_mean", "conv3.3.bn2.running_var", "conv4.0.conv1.weight", "conv4.0.bn1.weight", "conv4.0.bn1.bias", "conv4.0.bn1.running_mean", "conv4.0.bn1.running_var", "conv4.0.conv2.weight", "conv4.0.bn2.weight", "conv4.0.bn2.bias", "conv4.0.bn2.running_mean", "conv4.0.bn2.running_var", "conv4.0.downsample.0.weight", "conv4.0.downsample.1.weight", "conv4.0.downsample.1.bias", "conv4.0.downsample.1.running_mean", "conv4.0.downsample.1.running_var", "conv4.1.conv1.weight", "conv4.1.bn1.weight", "conv4.1.bn1.bias", "conv4.1.bn1.running_mean", "conv4.1.bn1.running_var", "conv4.1.conv2.weight", "conv4.1.bn2.weight", "conv4.1.bn2.bias", "conv4.1.bn2.running_mean", "conv4.1.bn2.running_var", "conv4.2.conv1.weight", "conv4.2.bn1.weight", "conv4.2.bn1.bias", "conv4.2.bn1.running_mean", "conv4.2.bn1.running_var", "conv4.2.conv2.weight", "conv4.2.bn2.weight", "conv4.2.bn2.bias", "conv4.2.bn2.running_mean", "conv4.2.bn2.running_var", "conv4.3.conv1.weight", "conv4.3.bn1.weight", "conv4.3.bn1.bias", "conv4.3.bn1.running_mean", "conv4.3.bn1.running_var", "conv4.3.conv2.weight", "conv4.3.bn2.weight", "conv4.3.bn2.bias", "conv4.3.bn2.running_mean", "conv4.3.bn2.running_var", "conv4.4.conv1.weight", "conv4.4.bn1.weight", "conv4.4.bn1.bias", "conv4.4.bn1.running_mean", "conv4.4.bn1.running_var", "conv4.4.conv2.weight", "conv4.4.bn2.weight", "conv4.4.bn2.bias", "conv4.4.bn2.running_mean", "conv4.4.bn2.running_var", "conv4.5.conv1.weight", "conv4.5.bn1.weight", "conv4.5.bn1.bias", "conv4.5.bn1.running_mean", "conv4.5.bn1.running_var", "conv4.5.conv2.weight", "conv4.5.bn2.weight", "conv4.5.bn2.bias", "conv4.5.bn2.running_mean", "conv4.5.bn2.running_var", "conv5.0.conv1.weight", "conv5.0.bn1.weight", "conv5.0.bn1.bias", "conv5.0.bn1.running_mean", "conv5.0.bn1.running_var", "conv5.0.conv2.weight", "conv5.0.bn2.weight", "conv5.0.bn2.bias", "conv5.0.bn2.running_mean", "conv5.0.bn2.running_var", "conv5.0.downsample.0.weight", "conv5.0.downsample.1.weight", "conv5.0.downsample.1.bias", "conv5.0.downsample.1.running_mean", "conv5.0.downsample.1.running_var", "conv5.1.conv1.weight", "conv5.1.bn1.weight", "conv5.1.bn1.bias", "conv5.1.bn1.running_mean", "conv5.1.bn1.running_var", "conv5.1.conv2.weight", "conv5.1.bn2.weight", "conv5.1.bn2.bias", "conv5.1.bn2.running_mean", "conv5.1.bn2.running_var", "conv5.2.conv1.weight", "conv5.2.bn1.weight", "conv5.2.bn1.bias", "conv5.2.bn1.running_mean", "conv5.2.bn1.running_var", "conv5.2.conv2.weight", "conv5.2.bn2.weight", "conv5.2.bn2.bias", "conv5.2.bn2.running_mean", "conv5.2.bn2.running_var". 
+	Unexpected key(s) in state_dict: "layer1.0.conv1.weight", "layer1.0.bn1.running_mean", "layer1.0.bn1.running_var", "layer1.0.bn1.weight", "layer1.0.bn1.bias", "layer1.0.conv2.weight", "layer1.0.bn2.running_mean", "layer1.0.bn2.running_var", "layer1.0.bn2.weight", "layer1.0.bn2.bias", "layer1.1.conv1.weight", "layer1.1.bn1.running_mean", "layer1.1.bn1.running_var", "layer1.1.bn1.weight", "layer1.1.bn1.bias", "layer1.1.conv2.weight", "layer1.1.bn2.running_mean", "layer1.1.bn2.running_var", "layer1.1.bn2.weight", "layer1.1.bn2.bias", "layer1.2.conv1.weight", "layer1.2.bn1.running_mean", "layer1.2.bn1.running_var", "layer1.2.bn1.weight", "layer1.2.bn1.bias", "layer1.2.conv2.weight", "layer1.2.bn2.running_mean", "layer1.2.bn2.running_var", "layer1.2.bn2.weight", "layer1.2.bn2.bias", "layer2.0.conv1.weight", "layer2.0.bn1.running_mean", "layer2.0.bn1.running_var", "layer2.0.bn1.weight", "layer2.0.bn1.bias", "layer2.0.conv2.weight", "layer2.0.bn2.running_mean", "layer2.0.bn2.running_var", "layer2.0.bn2.weight", "layer2.0.bn2.bias", "layer2.0.downsample.0.weight", "layer2.0.downsample.1.running_mean", "layer2.0.downsample.1.running_var", "layer2.0.downsample.1.weight", "layer2.0.downsample.1.bias", "layer2.1.conv1.weight", "layer2.1.bn1.running_mean", "layer2.1.bn1.running_var", "layer2.1.bn1.weight", "layer2.1.bn1.bias", "layer2.1.conv2.weight", "layer2.1.bn2.running_mean", "layer2.1.bn2.running_var", "layer2.1.bn2.weight", "layer2.1.bn2.bias", "layer2.2.conv1.weight", "layer2.2.bn1.running_mean", "layer2.2.bn1.running_var", "layer2.2.bn1.weight", "layer2.2.bn1.bias", "layer2.2.conv2.weight", "layer2.2.bn2.running_mean", "layer2.2.bn2.running_var", "layer2.2.bn2.weight", "layer2.2.bn2.bias", "layer2.3.conv1.weight", "layer2.3.bn1.running_mean", "layer2.3.bn1.running_var", "layer2.3.bn1.weight", "layer2.3.bn1.bias", "layer2.3.conv2.weight", "layer2.3.bn2.running_mean", "layer2.3.bn2.running_var", "layer2.3.bn2.weight", "layer2.3.bn2.bias", "layer3.0.conv1.weight", "layer3.0.bn1.running_mean", "layer3.0.bn1.running_var", "layer3.0.bn1.weight", "layer3.0.bn1.bias", "layer3.0.conv2.weight", "layer3.0.bn2.running_mean", "layer3.0.bn2.running_var", "layer3.0.bn2.weight", "layer3.0.bn2.bias", "layer3.0.downsample.0.weight", "layer3.0.downsample.1.running_mean", "layer3.0.downsample.1.running_var", "layer3.0.downsample.1.weight", "layer3.0.downsample.1.bias", "layer3.1.conv1.weight", "layer3.1.bn1.running_mean", "layer3.1.bn1.running_var", "layer3.1.bn1.weight", "layer3.1.bn1.bias", "layer3.1.conv2.weight", "layer3.1.bn2.running_mean", "layer3.1.bn2.running_var", "layer3.1.bn2.weight", "layer3.1.bn2.bias", "layer3.2.conv1.weight", "layer3.2.bn1.running_mean", "layer3.2.bn1.running_var", "layer3.2.bn1.weight", "layer3.2.bn1.bias", "layer3.2.conv2.weight", "layer3.2.bn2.running_mean", "layer3.2.bn2.running_var", "layer3.2.bn2.weight", "layer3.2.bn2.bias", "layer3.3.conv1.weight", "layer3.3.bn1.running_mean", "layer3.3.bn1.running_var", "layer3.3.bn1.weight", "layer3.3.bn1.bias", "layer3.3.conv2.weight", "layer3.3.bn2.running_mean", "layer3.3.bn2.running_var", "layer3.3.bn2.weight", "layer3.3.bn2.bias", "layer3.4.conv1.weight", "layer3.4.bn1.running_mean", "layer3.4.bn1.running_var", "layer3.4.bn1.weight", "layer3.4.bn1.bias", "layer3.4.conv2.weight", "layer3.4.bn2.running_mean", "layer3.4.bn2.running_var", "layer3.4.bn2.weight", "layer3.4.bn2.bias", "layer3.5.conv1.weight", "layer3.5.bn1.running_mean", "layer3.5.bn1.running_var", "layer3.5.bn1.weight", "layer3.5.bn1.bias", "layer3.5.conv2.weight", "layer3.5.bn2.running_mean", "layer3.5.bn2.running_var", "layer3.5.bn2.weight", "layer3.5.bn2.bias", "layer4.0.conv1.weight", "layer4.0.bn1.running_mean", "layer4.0.bn1.running_var", "layer4.0.bn1.weight", "layer4.0.bn1.bias", "layer4.0.conv2.weight", "layer4.0.bn2.running_mean", "layer4.0.bn2.running_var", "layer4.0.bn2.weight", "layer4.0.bn2.bias", "layer4.0.downsample.0.weight", "layer4.0.downsample.1.running_mean", "layer4.0.downsample.1.running_var", "layer4.0.downsample.1.weight", "layer4.0.downsample.1.bias", "layer4.1.conv1.weight", "layer4.1.bn1.running_mean", "layer4.1.bn1.running_var", "layer4.1.bn1.weight", "layer4.1.bn1.bias", "layer4.1.conv2.weight", "layer4.1.bn2.running_mean", "layer4.1.bn2.running_var", "layer4.1.bn2.weight", "layer4.1.bn2.bias", "layer4.2.conv1.weight", "layer4.2.bn1.running_mean", "layer4.2.bn1.running_var", "layer4.2.bn1.weight", "layer4.2.bn1.bias", "layer4.2.conv2.weight", "layer4.2.bn2.running_mean", "layer4.2.bn2.running_var", "layer4.2.bn2.weight", "layer4.2.bn2.bias".
+
+```
+
+2. 分类问题数目不同，如何加载预训练的参数？
+
+3. load中 **map_location** 参数，以及 `model.to(device)` 的位置？
+
+* **解决方案**
+
+```python
+model = resnet50(class_num=1000, include_top=True)
+model.load_state_dict(torch.load("{}_pretrained.pth".format(model.name), map_location=device), strict=False)
+# change fc layer to match this classification
+model.fc = nn.Linear(model.fc.in_features, 5)
+
+model.to(device)
+```
+
+* **代码参考**
+
+```python
+
+```
+
+## json
+
+* **问题描述**
+
+注意 `json.load()` 与 `json.dump()` 的用法，总结来说就是 **得先打开文件**
+
+* **代码参考**
+
+```python
+with open('index2class.json', 'w') as json_file:
+    json.dump(index2class_dict, json_file)
+
+with open('index2class.json', 'r') as json_file:
+    index2class = json.load(json_file)
+```
+
+## torch.softmax
+
+* **问题描述**
+
+```python
+pred_prob = torch.softmax(pred)
+```
+
+```powershell
+TypeError: softmax() received an invalid combination of arguments - got (Tensor), but expected one of:
+ * (Tensor input, int dim, torch.dtype dtype)
+ * (Tensor input, name dim, *, torch.dtype dtype)
+```
+
+* **解决方案**
+
+在预测时要注意图片的维度
+
+```python
+model.eval()
+with torch.no_grad():
+    img = img.to(device)  # (1, 3, 224, 224)
+    pred = torch.squeeze(model(img))  # (5,)
+
+    pred_prob = torch.softmax(pred, dim=0).cpu()
+    pred_index = torch.argmax(pred_prob).numpy()
+################################################
+model.eval()
+with torch.no_grad():
+    img = img.to(device)  # (1, 3, 224, 224)
+    pred = model(img)  # (1, 5)
+
+    pred_prob = torch.softmax(pred, dim=1).cpu()
+    pred_index = torch.argmax(pred_prob).numpy()
 ```
